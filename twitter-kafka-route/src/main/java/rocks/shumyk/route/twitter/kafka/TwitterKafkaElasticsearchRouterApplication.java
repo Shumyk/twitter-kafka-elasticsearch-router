@@ -1,4 +1,4 @@
-package rocks.shumyk.twitter.kafka.elasticsearch.router;
+package rocks.shumyk.route.twitter.kafka;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
