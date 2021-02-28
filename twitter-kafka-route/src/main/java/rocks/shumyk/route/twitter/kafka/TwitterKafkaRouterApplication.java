@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TwitterKafkaElasticsearchRouterApplication {
+public class TwitterKafkaRouterApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TwitterKafkaElasticsearchRouterApplication.class, args);
+		SpringApplication.run(TwitterKafkaRouterApplication.class, args);
 	}
 
 }
