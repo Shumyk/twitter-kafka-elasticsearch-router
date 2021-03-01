@@ -10,6 +10,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.extern.slf4j.Slf4j;
+import rocks.shumyk.route.twitter.kafka.kafka.TwitterKafkaProducer;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -25,11 +26,13 @@ public class TwitterDataProcessor implements DataProcessor {
 	private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>(100_000);
 	private final Hosts hbcHosts = new HttpHosts(Constants.STREAM_HOST);
 
+	private final TwitterKafkaProducer kafkaProducer;
 	private final StatusesFilterEndpoint hbcEndpoint;
 	private final Authentication hbcAuth;
 	private final Client hbcClient;
 
-	public TwitterDataProcessor() {
+	public TwitterDataProcessor(final TwitterKafkaProducer kafkaProducer) {
+		this.kafkaProducer = kafkaProducer;
 		// todo retrieve this auth props
 		this.hbcEndpoint = setupEndpointPostParameters();
 		this.hbcAuth = new OAuth1("", "", "", "");
@@ -67,11 +70,7 @@ public class TwitterDataProcessor implements DataProcessor {
 		while (!hbcClient.isDone()) {
 			final String message = messageQueue.take();
 			log.info("Received message from Twitter: [{}]", message);
-			produceMessageToKafka(message);
+			kafkaProducer.produce(message);
 		}
-	}
-
-	private void produceMessageToKafka(final String message) {
-		// todo implement in kafka producer
 	}
 }
