@@ -1,6 +1,7 @@
 package rocks.shumyk.route.twitter.kafka.kafka;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Properties;
 
+import static java.util.Objects.nonNull;
+
 @Slf4j
 @Component
 public class TwitterKafkaProducer {
@@ -16,11 +19,18 @@ public class TwitterKafkaProducer {
 	private final String topic;
 	private final KafkaProducer<String, String> producer;
 
-	public TwitterKafkaProducer(final String topic) {
-		this.topic = topic;
+	public TwitterKafkaProducer(/*final String topic*/) {
+		this.topic = "tweets_topic";// todo read topic from env
 
 		final Properties properties = createProducerProperties();
 		this.producer = new KafkaProducer<>(properties);
+
+		// add shutdown hook // todo move to separate and add twitter client closing
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			log.info("Stopping Application [kafka]");
+			producer.close();
+			log.info("Application is stopped.");
+		}));
 	}
 
 	private Properties createProducerProperties() {
@@ -33,7 +43,18 @@ public class TwitterKafkaProducer {
 
 	public void produce(final String message) {
 		final ProducerRecord<String, String> record = new ProducerRecord<>(topic, message);
-		producer.send(record);
+		producer.send(record, producingCallback());
 		producer.flush();
+	}
+
+	private Callback producingCallback() {
+		return (data, exception) -> {
+			if (nonNull(exception)) {
+				log.error("Error occurred during producing message to kafka", exception);
+			} else {
+				// todo add record metadata info to log
+				log.info("Message successfully published to Kafka");
+			}
+		};
 	}
 }

@@ -10,6 +10,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import rocks.shumyk.route.twitter.kafka.kafka.TwitterKafkaProducer;
 
 import javax.annotation.PostConstruct;
@@ -20,7 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static java.util.Arrays.asList;
 
 @Slf4j
-//@Component // todo uncomment when auth will be done
+@Component
 public class TwitterDataProcessor implements DataProcessor {
 
 	private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>(100_000);
@@ -28,14 +29,20 @@ public class TwitterDataProcessor implements DataProcessor {
 
 	private final TwitterKafkaProducer kafkaProducer;
 	private final StatusesFilterEndpoint hbcEndpoint;
-	private final Authentication hbcAuth;
 	private final Client hbcClient;
+
+	private final Authentication hbcAuth;
+	// todo retrieve this auth props from env
+	private final String consumerKey = "";
+	private final String consumerSecret = "";
+	private final String token = "";
+	private final String tokenSecret = "";
+
 
 	public TwitterDataProcessor(final TwitterKafkaProducer kafkaProducer) {
 		this.kafkaProducer = kafkaProducer;
-		// todo retrieve this auth props
 		this.hbcEndpoint = setupEndpointPostParameters();
-		this.hbcAuth = new OAuth1("", "", "", "");
+		this.hbcAuth = new OAuth1(consumerKey, consumerSecret, token, tokenSecret);
 		this.hbcClient = buildHosebirdClient();
 		this.hbcClient.connect();
 	}
@@ -47,11 +54,11 @@ public class TwitterDataProcessor implements DataProcessor {
 
 	private StatusesFilterEndpoint setupEndpointPostParameters() {
 		// todo review these post parameters and probably move from hard-code to env props / config map
-		final List<Long> followings = asList(453L, 4523L);
-		final List<String> terms = asList("twitter", "api");
+//		final List<Long> followings = asList(453L, 4523L);
+		final List<String> terms = asList("kafka");
 
 		final StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-		endpoint.followings(followings);
+//		endpoint.followings(followings);
 		endpoint.trackTerms(terms);
 		return endpoint;
 	}
@@ -67,7 +74,8 @@ public class TwitterDataProcessor implements DataProcessor {
 	}
 
 	private void processMessages() throws InterruptedException {
-		while (!hbcClient.isDone()) {
+		int numberOfReadTweets = 0;
+		while (!hbcClient.isDone() && numberOfReadTweets++ <= 50) {
 			final String message = messageQueue.take();
 			log.info("Received message from Twitter: [{}]", message);
 			kafkaProducer.produce(message);
