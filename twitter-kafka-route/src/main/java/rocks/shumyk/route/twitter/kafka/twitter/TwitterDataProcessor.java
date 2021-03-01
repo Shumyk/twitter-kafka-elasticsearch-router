@@ -54,11 +54,9 @@ public class TwitterDataProcessor implements DataProcessor {
 
 	private StatusesFilterEndpoint setupEndpointPostParameters() {
 		// todo review these post parameters and probably move from hard-code to env props / config map
-//		final List<Long> followings = asList(453L, 4523L);
 		final List<String> terms = asList("kafka");
 
 		final StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-//		endpoint.followings(followings);
 		endpoint.trackTerms(terms);
 		return endpoint;
 	}
