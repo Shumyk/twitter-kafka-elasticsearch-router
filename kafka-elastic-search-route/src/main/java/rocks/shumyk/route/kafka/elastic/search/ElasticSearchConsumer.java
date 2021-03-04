@@ -1,5 +1,6 @@
 package rocks.shumyk.route.kafka.elastic.search;
 
+import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -48,7 +49,13 @@ public class ElasticSearchConsumer {
 		while (true) {
 			final ConsumerRecords<String, String> records = tweetConsumer.poll(Duration.ofMillis(100));
 			for (ConsumerRecord<String, String> record : records) {
+				// 2 strategies of creating ID
+				// kafka generic ID
+//				final String kafkaGenericId = record.topic() + "_" + record.partition() + "_" + record.offset();
+				// twitter feed specific id
+				final String twitterId = extractIdFromTweet(record.value());
 				final IndexRequest indexRequest = new IndexRequest("twitter")
+					.id(twitterId) // ensuring idempotence
 					.source(record.value(), XContentType.JSON);
 
 				final IndexResponse response = elasticSearchRestClient.index(indexRequest, RequestOptions.DEFAULT);
@@ -61,5 +68,12 @@ public class ElasticSearchConsumer {
 
 		// close the client gracefully
 //		elasticSearchRestClient.close();
+	}
+
+	private static String extractIdFromTweet(final String tweetJson) {
+		return JsonParser.parseString(tweetJson)
+			.getAsJsonObject()
+			.get("id_str")
+			.getAsString();
 	}
 }
