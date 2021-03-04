@@ -5,6 +5,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>twitter-kafka-route</module>
+		<module>kafka-elastic-search-route</module>
 	</modules>
 
 	<parent>
