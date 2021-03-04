@@ -6,6 +6,9 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -15,6 +18,10 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 
 import java.io.IOException;
+import java.time.Duration;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static rocks.shumyk.route.kafka.elastic.search.TweetsKafkaConsumer.initiateKafkaConsumer;
 
 @Slf4j
 public class ElasticSearchConsumer {
@@ -34,18 +41,25 @@ public class ElasticSearchConsumer {
 		return new RestHighLevelClient(elasticRestClientBuilder);
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		final RestHighLevelClient elasticSearchRestClient = createElasticSearchRestClient();
 
-		final String jsonString = "{\"foo\": \"bar123\"}";
-		final IndexRequest indexRequest = new IndexRequest("twitter")
-			.source(jsonString, XContentType.JSON);
+		final KafkaConsumer<String, String> tweetConsumer = initiateKafkaConsumer();
+		while (true) {
+			final ConsumerRecords<String, String> records = tweetConsumer.poll(Duration.ofMillis(100));
+			for (ConsumerRecord<String, String> record : records) {
+				final IndexRequest indexRequest = new IndexRequest("twitter")
+					.source(record.value(), XContentType.JSON);
 
-		final IndexResponse response = elasticSearchRestClient.index(indexRequest, RequestOptions.DEFAULT);
-		final String responseId = response.getId();
-		log.info("Received response with ID: {}", responseId);
+				final IndexResponse response = elasticSearchRestClient.index(indexRequest, RequestOptions.DEFAULT);
+				final String responseId = response.getId();
+				log.info("Received response with ID: {}", responseId);
+
+				MILLISECONDS.sleep(2000);
+			}
+		}
 
 		// close the client gracefully
-		elasticSearchRestClient.close();
+//		elasticSearchRestClient.close();
 	}
 }
