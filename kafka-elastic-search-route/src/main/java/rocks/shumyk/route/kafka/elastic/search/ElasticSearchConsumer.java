@@ -10,8 +10,9 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -21,7 +22,6 @@ import org.elasticsearch.common.xcontent.XContentType;
 import java.io.IOException;
 import java.time.Duration;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static rocks.shumyk.route.kafka.elastic.search.TweetsKafkaConsumer.initiateKafkaConsumer;
 
 @Slf4j
@@ -50,6 +50,7 @@ public class ElasticSearchConsumer {
 			final ConsumerRecords<String, String> records = tweetConsumer.poll(Duration.ofMillis(100));
 			log.info("Received {} tweet records.", records.count());
 
+			final BulkRequest elasticBulkRequest = new BulkRequest();
 			for (ConsumerRecord<String, String> record : records) {
 				// 2 strategies of creating ID
 				// kafka generic ID
@@ -60,17 +61,17 @@ public class ElasticSearchConsumer {
 					.id(twitterId) // ensuring idempotence
 					.source(record.value(), XContentType.JSON);
 
-				final IndexResponse response = elasticSearchRestClient.index(indexRequest, RequestOptions.DEFAULT);
-				final String responseId = response.getId();
-				log.info("Received response with ID: {}", responseId);
-
-				MILLISECONDS.sleep(2000);
+				elasticBulkRequest.add(indexRequest);
 			}
 
-			// committing offsets
-			log.info("Committing offsets.");
-			tweetConsumer.commitSync();
-			log.info("Offsets have been committed.");
+			if (!elasticBulkRequest.requests().isEmpty()) {
+				final BulkResponse response = elasticSearchRestClient.bulk(elasticBulkRequest, RequestOptions.DEFAULT);
+				log.info("Elastic bulk insert of {} items took {}", response.getItems().length, response.getTook().getMillis());
+				// committing offsets
+				log.info("Committing offsets.");
+				tweetConsumer.commitSync();
+				log.info("Offsets have been committed.");
+			}
 		}
 
 		// close the client gracefully
