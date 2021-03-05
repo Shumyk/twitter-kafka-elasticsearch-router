@@ -48,6 +48,8 @@ public class ElasticSearchConsumer {
 		final KafkaConsumer<String, String> tweetConsumer = initiateKafkaConsumer();
 		while (true) {
 			final ConsumerRecords<String, String> records = tweetConsumer.poll(Duration.ofMillis(100));
+			log.info("Received {} tweet records.", records.count());
+
 			for (ConsumerRecord<String, String> record : records) {
 				// 2 strategies of creating ID
 				// kafka generic ID
@@ -64,6 +66,11 @@ public class ElasticSearchConsumer {
 
 				MILLISECONDS.sleep(2000);
 			}
+
+			// committing offsets
+			log.info("Committing offsets.");
+			tweetConsumer.commitSync();
+			log.info("Offsets have been committed.");
 		}
 
 		// close the client gracefully
