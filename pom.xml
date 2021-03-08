@@ -6,7 +6,8 @@
 	<modules>
 		<module>twitter-kafka-route</module>
 		<module>kafka-elastic-search-route</module>
-	</modules>
+        <module>kafka-streams-filter-tweets</module>
+    </modules>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
