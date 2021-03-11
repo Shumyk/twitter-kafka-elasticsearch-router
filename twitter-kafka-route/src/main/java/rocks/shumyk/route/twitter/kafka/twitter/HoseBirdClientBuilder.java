@@ -24,7 +24,7 @@ public class HoseBirdClientBuilder {
 							   final List<String> termsToTrack, final BlockingQueue<String> messageQueue) {
 		final StatusesFilterEndpoint endpoint = setupEndpointPostParameters(termsToTrack);
 		final OAuth1 oAuth1 = new OAuth1(consumerKey, consumerSecret, token, tokenSecret);
-		return buildHosebirdClient(oAuth1, endpoint, messageQueue);
+		return buildHoseBirdClient(oAuth1, endpoint, messageQueue);
 	}
 
 	private static StatusesFilterEndpoint setupEndpointPostParameters(final List<String> terms) {
@@ -33,7 +33,7 @@ public class HoseBirdClientBuilder {
 		return endpoint;
 	}
 
-	private static Client buildHosebirdClient(final OAuth1 hbcAuth,
+	private static Client buildHoseBirdClient(final OAuth1 hbcAuth,
 											  final StatusesFilterEndpoint hbcEndpoint,
 											  final BlockingQueue<String> messageQueue) {
 		final ClientBuilder clientBuilder = new ClientBuilder()
