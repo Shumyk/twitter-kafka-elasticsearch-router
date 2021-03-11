@@ -13,7 +13,7 @@ import static rocks.shumyk.route.twitter.kafka.util.GeneralUtils.split;
 
 @Slf4j
 @Component
-public class TwitterDataProcessor implements DataProcessor {
+public class TwitterDataProcessor {
 
 	private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>(100_000);
 
@@ -56,5 +56,9 @@ public class TwitterDataProcessor implements DataProcessor {
 			log.error("Exception occurred during take of message from queue: {}", ex.getMessage(), ex);
 			return null;
 		}
+	}
+
+	public void close() {
+		hbcClient.stop();
 	}
 }
