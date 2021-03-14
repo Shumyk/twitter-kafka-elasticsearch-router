@@ -52,10 +52,6 @@ public class ElasticSearchConsumer {
 
 			final BulkRequest elasticBulkRequest = new BulkRequest();
 			for (ConsumerRecord<String, String> record : records) {
-				// 2 strategies of creating ID
-				// kafka generic ID
-//				final String kafkaGenericId = record.topic() + "_" + record.partition() + "_" + record.offset();
-				// twitter feed specific id
 				final String twitterId = extractIdFromTweet(record.value());
 				final IndexRequest indexRequest = new IndexRequest("twitter")
 					.id(twitterId) // ensuring idempotence
