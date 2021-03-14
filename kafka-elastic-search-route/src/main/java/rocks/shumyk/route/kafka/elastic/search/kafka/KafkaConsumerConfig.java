@@ -1,5 +1,6 @@
 package rocks.shumyk.route.kafka.elastic.search.kafka;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -12,6 +13,7 @@ import java.util.Properties;
 import static java.lang.System.getenv;
 import static java.util.Arrays.asList;
 
+@Slf4j
 @Configuration
 public class KafkaConsumerConfig {
 
@@ -20,9 +22,12 @@ public class KafkaConsumerConfig {
 		final String kafkaHost = getenv("KAFKA_HOST");
 		final List<String> topics = asList(getenv("TOPIC_TWEETS_RAW").split(","));
 
+		log.info("Kafka host: {}, topics to read: [{}]", kafkaHost, topics);
+
 		final Properties consumerProperties = createConsumerProperties(kafkaHost);
 		final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProperties);
 		consumer.subscribe(topics);
+		log.info("Create Kafka consumer and subscribed to topics");
 		return consumer;
 	}
 
