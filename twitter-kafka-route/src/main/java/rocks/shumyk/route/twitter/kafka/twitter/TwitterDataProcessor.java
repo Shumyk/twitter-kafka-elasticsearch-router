@@ -25,7 +25,7 @@ public class TwitterDataProcessor {
 	private final String consumerSecret = "";
 	private final String token = "";
 	private final String tokenSecret = "";
-	private final String termsToTrack = "shumyk";
+	private final String termsToTrack = "kafka";
 
 
 	public TwitterDataProcessor(final TwitterKafkaProducer kafkaProducer) {

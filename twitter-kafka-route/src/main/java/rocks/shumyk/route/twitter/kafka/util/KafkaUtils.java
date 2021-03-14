@@ -11,9 +11,9 @@ import java.util.Properties;
 public class KafkaUtils {
 
 	// todo should be taken from configmap
-	public static Properties createProducerProperties() {
+	public static Properties createProducerProperties(final String kafkaBrokerHost) {
 		final Properties properties = new Properties();
-		properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+		properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokerHost);
 		properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 		properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 		// properties to ensure we have safe producer

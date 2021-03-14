@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
 
+import static java.lang.System.getenv;
 import static java.util.Objects.nonNull;
 import static rocks.shumyk.route.twitter.kafka.util.KafkaUtils.createProducerProperties;
 
@@ -16,10 +17,12 @@ public class TwitterKafkaProducer {
 	private final String topic;
 	private final KafkaProducer<String, String> producer;
 
-	public TwitterKafkaProducer(/*final String topic*/) {
-		this.topic = "tweets_topic";// todo read topic from env
-
-		this.producer = new KafkaProducer<>(createProducerProperties());
+	public TwitterKafkaProducer() {
+		this.topic = getenv("TOPIC_TWEETS_RAW");
+		final String kafkaBrokerHost = getenv("KAFKA_BROKER_HOST");
+		log.info("KAFKA TOPIC : {}", topic);
+		log.info("KAFKA BROKER HOST: {}", kafkaBrokerHost);
+		this.producer = new KafkaProducer<>(createProducerProperties(kafkaBrokerHost));
 	}
 
 	public void produce(final String message) {

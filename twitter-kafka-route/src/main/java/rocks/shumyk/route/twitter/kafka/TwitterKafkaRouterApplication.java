@@ -11,5 +11,4 @@ public class TwitterKafkaRouterApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TwitterKafkaRouterApplication.class, args);
 	}
-
 }
