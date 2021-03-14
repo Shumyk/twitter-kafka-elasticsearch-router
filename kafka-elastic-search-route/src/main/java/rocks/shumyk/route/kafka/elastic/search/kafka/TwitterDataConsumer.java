@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import rocks.shumyk.route.kafka.elastic.search.elastic.ElasticSearchPublisher;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.Objects.isNull;
@@ -40,7 +41,11 @@ public class TwitterDataConsumer {
 	private void consumeDataSafely() {
 		try {
 			final ConsumerRecords<String, String> records = tweetConsumer.poll(Duration.ofMillis(100));
-			if (isNull(records) || records.isEmpty()) return;
+			if (isNull(records) || records.isEmpty()) {
+				log.info("No records [{}], sleeping...", records);
+				TimeUnit.SECONDS.sleep(5); // todo env
+				return;
+			}
 			log.info("Received {} tweet records.", records.count());
 
 			final ImmutableMap.Builder<String, String> tweetsById = new ImmutableMap.Builder<>();

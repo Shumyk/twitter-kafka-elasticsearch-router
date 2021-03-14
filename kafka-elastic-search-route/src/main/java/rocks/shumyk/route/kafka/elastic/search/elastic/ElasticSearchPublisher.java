@@ -29,7 +29,7 @@ public class ElasticSearchPublisher {
 
 		if (!bulkRequest.requests().isEmpty()) {
 			final BulkResponse response = elasticSearchRestClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-			log.info("Elastic bulk insert of {} items took {}", response.getItems().length, response.getTook().getMillis());
+			log.info("Elastic bulk insert of {} items took {} ms", response.getItems().length, response.getTook().getMillis());
 		}
 	}
 
