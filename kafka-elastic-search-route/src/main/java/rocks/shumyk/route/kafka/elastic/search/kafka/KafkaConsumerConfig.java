@@ -1,28 +1,32 @@
-package rocks.shumyk.route.kafka.elastic.search;
+package rocks.shumyk.route.kafka.elastic.search.kafka;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
 import java.util.Properties;
 
 import static java.lang.System.getenv;
-import static java.util.Collections.singleton;
+import static java.util.Arrays.asList;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class TweetsKafkaConsumer {
+@Configuration
+public class KafkaConsumerConfig {
 
-	public static KafkaConsumer<String, String> initiateKafkaConsumer() {
+	@Bean
+	public KafkaConsumer<String, String> initiateKafkaConsumer() {
 		final String kafkaHost = getenv("KAFKA_HOST");
-		final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(createConsumerProperties(kafkaHost));
-		final String topic = getenv("TOPIC_TWEETS_RAW");
-		consumer.subscribe(singleton(topic));
+		final List<String> topics = asList(getenv("TOPIC_TWEETS_RAW").split(","));
+
+		final Properties consumerProperties = createConsumerProperties(kafkaHost);
+		final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProperties);
+		consumer.subscribe(topics);
 		return consumer;
 	}
 
-	private static Properties createConsumerProperties(final String kafkaHost) {
+	public static Properties createConsumerProperties(final String kafkaHost) {
 		final Properties properties = new Properties();
 		properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaHost);
 		properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
