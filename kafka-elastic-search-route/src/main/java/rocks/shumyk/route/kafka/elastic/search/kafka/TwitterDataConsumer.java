@@ -12,6 +12,7 @@ import rocks.shumyk.route.kafka.elastic.search.elastic.ElasticSearchPublisher;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.Objects.isNull;
 
@@ -23,10 +24,15 @@ public class TwitterDataConsumer {
 	private final KafkaConsumer<String, String> tweetConsumer;
 	private final ElasticSearchPublisher elasticSearchPublisher;
 
-	// todo do in thread
+	private final AtomicBoolean closed = new AtomicBoolean();
+
+	public void close() {
+		this.closed.set(true);
+	}
+
 	@PostConstruct
 	private void consumeData() throws IOException {
-		while (true) {
+		while (!closed.get()) {
 			final ConsumerRecords<String, String> records = tweetConsumer.poll(Duration.ofMillis(100));
 			if (isNull(records) || records.isEmpty()) break;
 			log.info("Received {} tweet records.", records.count());
@@ -40,6 +46,7 @@ public class TwitterDataConsumer {
 			tweetConsumer.commitSync();
 			log.info("Offsets have been committed.");
 		}
+		tweetConsumer.close();
 	}
 
 	private String extractIdFromTweet(final String tweetJson) {
