@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-load-balancer
+spec:
+  type: LoadBalancer
+  selector:
+    type: kafka-deployment
+    broker: "0"
+  ports:
+  - port: 9092
+    name: kafka
+    protocol: TCP
