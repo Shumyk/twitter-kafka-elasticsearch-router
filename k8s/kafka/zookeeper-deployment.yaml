@@ -6,20 +6,17 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      type: zookeeper
+      type: zookeeper-deployment
   template:
     metadata:
       labels:
-        type: zookeeper
+        type: zookeeper-deployment
     spec:
       containers:
-      - name: zookeeper
-        image: digitalwonderland/zookeeper
-        ports:
-        - name: zookeeper
-          containerPort: 2181
-        env:
-        - name: ZOOKEEPER_CLIENT_PORT
-          value: "2181"
-        - name: ZOOKEEPER_TICK_TIME
-          value: "2000"
+        - name: zoo
+          image: digitalwonderland/zookeeper
+          ports:
+            - containerPort: 2181
+          env:
+            - name: ZOOKEEPER_ID
+              value: "1"

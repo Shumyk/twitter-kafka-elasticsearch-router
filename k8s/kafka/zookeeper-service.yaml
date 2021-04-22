@@ -1,18 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: zookeeper-load-balancer-service
+  name: zookeeper-service
 spec:
-  type: LoadBalancer
   selector:
-    type: zookeeper
+    type: zookeeper-deployment
   ports:
-  - name: client
-    port: 2181
-    protocol: TCP
-  - name: follower
-    port: 2888
-    protocol: TCP
-  - name: leader
-    port: 3888
-    protocol: TCP
+    - name: client
+      port: 2181
+      protocol: TCP
+    - name: follower
+      port: 2888
+      protocol: TCP
+    - name: leader
+      port: 3888
+      protocol: TCP
