@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-elastic-route
+  labels:
+    type: kafka-elastic-route
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      type: kafka-elastic-route
+  template:
+    metadata:
+      labels:
+        type: kafka-elastic-route
+    spec:
+      containers:
+        - name: kafka-elastic-route
+          image: shumyk/kafka-elastic-search-route
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KAFKA_HOST
+              value: kafka-service:9092
+            - name: TOPIC_TWEETS_RAW
+              value: tweets

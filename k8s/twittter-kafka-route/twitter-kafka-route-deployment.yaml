@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-kafka-route
+  labels:
+    type: twitter-kafka-route
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      type: twitter-kafka-route
+  template:
+    metadata:
+      labels:
+        type: twitter-kafka-route
+    spec:
+      containers:
+        - name: twitter-kafka-route
+          image: shumyk/twitter-kafka-route
+          ports:
+          - containerPort: 8080
+          env:
+          - name: KAFKA_BROKER_HOST
+            value: kafka-service:9092
+          - name: TOPIC_TWEETS_RAW
+            value: tweets
