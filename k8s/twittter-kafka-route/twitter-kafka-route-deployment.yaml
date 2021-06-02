@@ -20,7 +20,27 @@ spec:
           ports:
           - containerPort: 8080
           env:
-          - name: KAFKA_BROKER_HOST
-            value: kafka-service:9092
-          - name: TOPIC_TWEETS_RAW
-            value: tweets
+          - name: TWITTER_CONSUMER_KEY
+            valueFrom:
+              secretKeyRef:
+                name: twitter-kafka-route-secrets
+                key: twitter.consumer.key
+          - name: TWITTER_CONSUMER_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: twitter-kafka-route-secrets
+                key: twitter.consumer.secret
+          - name: TWITTER_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: twitter-kafka-route-secrets
+                key: twitter.token
+          - name: TWITTER_TOKEN_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: twitter-kafka-route-secrets
+                key: twitter.token.secret
+      volumes:
+        - name: twitter-kafka-config
+          configMap:
+            name: twitter-kafka-route-config

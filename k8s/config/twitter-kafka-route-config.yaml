@@ -1,0 +1,20 @@
+application:
+  twitter:
+    terms-to-track: "kafka,java"
+  kafka:
+    broker:
+      host: "kafka-service:9092"
+    topic: "tweets"
+kafka:
+  bootstrap.servers: "kafka-service:9092"
+  key.serializer: "org.apache.kafka.common.serialization.StringSerializer"
+  value.serializer: "org.apache.kafka.common.serialization.StringSerializer"
+  # properties to ensure we have safe producerd
+  enable.idempotence: "true"
+  acks: "all"
+  retries: "2147483647"
+  max.in.flight.requests.per.connection: "5"
+  # enable high throughput producer (at the expense of a bit of latency and CPU usage)
+  compression.type: "snappy"
+  linger.ms: "20"
+  batch.size: "32768"

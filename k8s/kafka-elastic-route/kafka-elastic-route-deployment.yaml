@@ -24,3 +24,7 @@ spec:
               value: kafka-service:9092
             - name: TOPIC_TWEETS_RAW
               value: tweets
+      volumes:
+        - name: kafka-elastic-config
+          configMap:
+            name: kafka-elastic-route-config

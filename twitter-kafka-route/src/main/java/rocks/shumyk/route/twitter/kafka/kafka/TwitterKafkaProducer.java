@@ -5,10 +5,9 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
+import rocks.shumyk.route.twitter.kafka.config.ConfigmapProperties;
 
-import static java.lang.System.getenv;
 import static java.util.Objects.nonNull;
-import static rocks.shumyk.route.twitter.kafka.util.KafkaUtils.createProducerProperties;
 
 @Slf4j
 @Component
@@ -17,17 +16,17 @@ public class TwitterKafkaProducer {
 	private final String topic;
 	private final KafkaProducer<String, String> producer;
 
-	public TwitterKafkaProducer() {
-		this.topic = getenv("TOPIC_TWEETS_RAW");
-		final String kafkaBrokerHost = getenv("KAFKA_BROKER_HOST");
+	public TwitterKafkaProducer(final ConfigmapProperties properties) {
+		this.topic = properties.getApplication().get("kafka.topic");
+		final String kafkaBrokerHost = properties.getApplication().get("kafka.broker.host");
 		log.info("KAFKA TOPIC : {}", topic);
 		log.info("KAFKA BROKER HOST: {}", kafkaBrokerHost);
-		this.producer = new KafkaProducer<>(createProducerProperties(kafkaBrokerHost));
+		this.producer = new KafkaProducer<>(properties.getKafka());
 	}
 
 	public void produce(final String message) {
-		final ProducerRecord<String, String> record = new ProducerRecord<>(topic, message);
-		producer.send(record, producingCallback());
+		final ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic, message);
+		producer.send(producerRecord, producingCallback());
 		producer.flush();
 	}
 

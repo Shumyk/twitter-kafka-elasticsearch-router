@@ -3,6 +3,7 @@ package rocks.shumyk.route.twitter.kafka.twitter;
 import com.twitter.hbc.core.Client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import rocks.shumyk.route.twitter.kafka.config.ConfigmapProperties;
 import rocks.shumyk.route.twitter.kafka.kafka.TwitterKafkaProducer;
 
 import java.util.concurrent.BlockingQueue;
@@ -20,18 +21,15 @@ public class TwitterDataProcessor {
 	private final TwitterKafkaProducer kafkaProducer;
 	private final Client hbcClient;
 
-	// todo retrieve this auth props from env
-	private final String consumerKey = "";
-	private final String consumerSecret = "";
-	private final String token = "";
-	private final String tokenSecret = "";
-	private final String termsToTrack = "kafka";
-
-
-	public TwitterDataProcessor(final TwitterKafkaProducer kafkaProducer) {
+	public TwitterDataProcessor(final TwitterKafkaProducer kafkaProducer, final ConfigmapProperties properties) {
 		this.kafkaProducer = kafkaProducer;
 		this.hbcClient = HoseBirdClientBuilder.build(
-			consumerKey, consumerSecret, token, tokenSecret, split(termsToTrack), messageQueue
+			properties.twitterConsumerKey(),
+			properties.twitterConsumerSecret(),
+			properties.twitterToken(),
+			properties.twitterTokenSecret(),
+			split(properties.getApplication().get("twitter.terms-to-track")),
+			messageQueue
 		);
 
 		new Thread(this::processMessages).start();
