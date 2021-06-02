@@ -23,12 +23,12 @@ public class HoseBirdClientBuilder {
 							   final String token, final String tokenSecret,
 							   final List<String> termsToTrack, final BlockingQueue<String> messageQueue) {
 		final StatusesFilterEndpoint endpoint = setupEndpointPostParameters(termsToTrack);
-		final OAuth1 oAuth1 = new OAuth1(consumerKey, consumerSecret, token, tokenSecret);
+		final var oAuth1 = new OAuth1(consumerKey, consumerSecret, token, tokenSecret);
 		return buildHoseBirdClient(oAuth1, endpoint, messageQueue);
 	}
 
 	private static StatusesFilterEndpoint setupEndpointPostParameters(final List<String> terms) {
-		final StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
+		final var endpoint = new StatusesFilterEndpoint();
 		endpoint.trackTerms(terms);
 		return endpoint;
 	}
@@ -36,7 +36,7 @@ public class HoseBirdClientBuilder {
 	private static Client buildHoseBirdClient(final OAuth1 hbcAuth,
 											  final StatusesFilterEndpoint hbcEndpoint,
 											  final BlockingQueue<String> messageQueue) {
-		final ClientBuilder clientBuilder = new ClientBuilder()
+		final var clientBuilder = new ClientBuilder()
 			.name("Hosebird-Client-007")
 			.hosts(hbcHosts)
 			.authentication(hbcAuth)

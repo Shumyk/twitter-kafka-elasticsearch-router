@@ -11,6 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @SetEnvironmentVariable(key = "TOPIC_TWEETS_RAW", value = "tweets_raw")
 @SetEnvironmentVariable(key = "KAFKA_BROKER_HOST", value = "kafka:9092")
+@SetEnvironmentVariable(key = "TWITTER_CONSUMER_KEY", value = "tcs")
+@SetEnvironmentVariable(key = "TWITTER_CONSUMER_SECRET", value = "tcs")
+@SetEnvironmentVariable(key = "TWITTER_TOKEN", value = "tt")
+@SetEnvironmentVariable(key = "TWITTER_TOKEN_SECRET", value = "tts")
 class TwitterKafkaRouterApplicationTest {
 
 	@MockBean private TwitterKafkaProducer producer;
