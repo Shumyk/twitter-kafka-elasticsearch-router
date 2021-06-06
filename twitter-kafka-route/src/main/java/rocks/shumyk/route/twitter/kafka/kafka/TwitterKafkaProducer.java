@@ -18,10 +18,7 @@ public class TwitterKafkaProducer {
 
 	public TwitterKafkaProducer(final ConfigmapProperties properties) {
 		this.topic = properties.getApplication().get("kafka.topic");
-		final String kafkaBrokerHost = properties.getApplication().get("kafka.broker.host");
-		log.info("KAFKA TOPIC : {}", topic);
-		log.info("KAFKA BROKER HOST: {}", kafkaBrokerHost);
-		this.producer = new KafkaProducer<>(properties.getKafka());
+		this.producer = new KafkaProducer<>(properties.getKafkaProperties());
 	}
 
 	public void produce(final String message) {

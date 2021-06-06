@@ -8,14 +8,16 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @Slf4j
 @Component
 @ConfigurationProperties
 public class ConfigmapProperties {
 
-	@Getter private final Map<String, String> application = new HashMap<>();
-	@Getter private final Map<String, Object> kafka = new HashMap<>();
+	@Getter	private final Map<String, String> application = new HashMap<>();
+	@Getter private final Map<String, String> kafka = new HashMap<>();
+	@Getter private final Properties kafkaProperties = new Properties();
 
 	public String twitterConsumerKey() {
 		return System.getenv("TWITTER_CONSUMER_KEY");
@@ -32,7 +34,9 @@ public class ConfigmapProperties {
 
 	@PostConstruct
 	private void postConstruct() {
+		kafka.forEach(kafkaProperties::put);
 		log.info("application properties: {}", application);
-		log.info("kafka properties: {}", kafka);
+		log.info("kafka string properties: {}", kafka);
+		log.info("kafka properties: {}", kafkaProperties);
 	}
 }

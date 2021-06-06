@@ -21,4 +21,4 @@ FROM adoptopenjdk/openjdk14
 
 COPY target/*.jar /usr/local/lib/twitter-kafka-route.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/usr/local/lib/twitter-kafka-route.jar"]
+CMD exec java -jar /usr/local/lib/twitter-kafka-route.jar --spring.config.name=twitter-kafka-route-config

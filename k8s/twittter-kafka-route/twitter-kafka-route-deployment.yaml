@@ -17,6 +17,9 @@ spec:
       containers:
         - name: twitter-kafka-route
           image: shumyk/twitter-kafka-route
+          volumeMounts:
+            - name: twitter-kafka-config
+              mountPath: /config/
           ports:
           - containerPort: 8080
           env:
@@ -43,4 +46,4 @@ spec:
       volumes:
         - name: twitter-kafka-config
           configMap:
-            name: twitter-kafka-route-config
+            name: twitter-kafka-route-configmap
