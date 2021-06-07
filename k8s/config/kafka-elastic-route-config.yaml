@@ -7,8 +7,8 @@ application:
     topics: tweets
 kafka:
   bootstrap.servers: kafka-service:9092
-  key.deserializer: org.apache.kafka.common.serialization.StringSerializer
-  value.deserializer: org.apache.kafka.common.serialization.StringSerializer
+  key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
   auto.offset.reset: earliest
   # disable auto commit of offsets
   enable.auto.commit: false

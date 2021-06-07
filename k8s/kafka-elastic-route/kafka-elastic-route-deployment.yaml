@@ -35,10 +35,6 @@ spec:
                 secretKeyRef:
                   name: kafka-elastic-route-secrets
                   key: elastic.password
-            - name: KAFKA_HOST
-              value: kafka-service:9092
-            - name: TOPIC_TWEETS_RAW
-              value: tweets
           volumeMounts:
             - name: kafka-elastic-config
               mountPath: /config/
