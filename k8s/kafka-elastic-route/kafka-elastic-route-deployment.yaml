@@ -20,11 +20,29 @@ spec:
           ports:
             - containerPort: 8080
           env:
+            - name: ELASTIC_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-elastic-route-secrets
+                  key: elastic.hostname
+            - name: ELASTIC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-elastic-route-secrets
+                  key: elastic.username
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-elastic-route-secrets
+                  key: elastic.password
             - name: KAFKA_HOST
               value: kafka-service:9092
             - name: TOPIC_TWEETS_RAW
               value: tweets
+          volumeMounts:
+            - name: kafka-elastic-config
+              mountPath: /config/
       volumes:
         - name: kafka-elastic-config
           configMap:
-            name: kafka-elastic-route-config
+            name: kafka-elastic-route-configmap

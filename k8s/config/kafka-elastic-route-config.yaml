@@ -1,0 +1,16 @@
+application:
+  twitter:
+    consumer:
+      sleep-time-seconds: 5
+  kafka:
+    # comma separated list of topics to consume from
+    topics: tweets
+kafka:
+  bootstrap.servers: kafka-service:9092
+  key.deserializer: org.apache.kafka.common.serialization.StringSerializer
+  value.deserializer: org.apache.kafka.common.serialization.StringSerializer
+  auto.offset.reset: earliest
+  # disable auto commit of offsets
+  enable.auto.commit: false
+  group.id: kafka-tweets-consumer-group
+  max.poll.records: 100

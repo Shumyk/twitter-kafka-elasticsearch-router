@@ -3,9 +3,9 @@ package rocks.shumyk.route.kafka.elastic.search.kafka;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.stereotype.Component;
+import rocks.shumyk.route.kafka.elastic.search.config.ConfigmapProperties;
 import rocks.shumyk.route.kafka.elastic.search.elastic.ElasticSearchPublisher;
 
 import java.time.Duration;
@@ -21,12 +21,15 @@ public class TwitterDataConsumer {
 	private final KafkaConsumer<String, String> tweetConsumer;
 	private final ElasticSearchPublisher elasticSearchPublisher;
 
+	private final long sleepWaitTime;
 	private final AtomicBoolean closed = new AtomicBoolean();
 
 	public TwitterDataConsumer(final KafkaConsumer<String, String> tweetConsumer,
-							   final ElasticSearchPublisher elasticSearchPublisher) {
+							   final ElasticSearchPublisher elasticSearchPublisher,
+							   final ConfigmapProperties properties) {
 		this.tweetConsumer = tweetConsumer;
 		this.elasticSearchPublisher = elasticSearchPublisher;
+		this.sleepWaitTime = Long.parseLong(properties.getApplication().getOrDefault("twitter.consumer.sleep-time-seconds", "5"));
 
 		log.info("Starting consume data from Kafka");
 		new Thread(this::consumeData).start();
@@ -40,16 +43,16 @@ public class TwitterDataConsumer {
 
 	private void consumeDataSafely() {
 		try {
-			final ConsumerRecords<String, String> records = tweetConsumer.poll(Duration.ofMillis(100));
+			final var records = tweetConsumer.poll(Duration.ofMillis(100));
 			if (isNull(records) || records.isEmpty()) {
 				log.info("No records [{}], sleeping...", records);
-				TimeUnit.SECONDS.sleep(5); // todo env
+				TimeUnit.SECONDS.sleep(sleepWaitTime);
 				return;
 			}
 			log.info("Received {} tweet records.", records.count());
 
 			final ImmutableMap.Builder<String, String> tweetsById = new ImmutableMap.Builder<>();
-			records.forEach(record -> tweetsById.put(extractIdFromTweet(record.value()), record.value()));
+			records.forEach(tweet -> tweetsById.put(extractIdFromTweet(tweet.value()), tweet.value()));
 
 			elasticSearchPublisher.publish(tweetsById.build());
 

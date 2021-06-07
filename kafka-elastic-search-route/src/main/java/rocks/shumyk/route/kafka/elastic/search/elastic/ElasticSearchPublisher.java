@@ -2,8 +2,6 @@ package rocks.shumyk.route.kafka.elastic.search.elastic;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -22,13 +20,13 @@ public class ElasticSearchPublisher {
 	private final RestHighLevelClient elasticSearchRestClient;
 
 	public void publish(final Map<String, String> messages) throws IOException {
-		final BulkRequest bulkRequest = messages.entrySet()
+		final var bulkRequest = messages.entrySet()
 			.stream()
 			.map(e -> toIndexRequest(e.getKey(), e.getValue()))
 			.collect(BulkRequestCollector.toBulkRequest());
 
 		if (!bulkRequest.requests().isEmpty()) {
-			final BulkResponse response = elasticSearchRestClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+			final var response = elasticSearchRestClient.bulk(bulkRequest, RequestOptions.DEFAULT);
 			log.info("Elastic bulk insert of {} items took {} ms", response.getItems().length, response.getTook().getMillis());
 		}
 	}
